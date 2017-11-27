@@ -2,9 +2,6 @@ package net.luxvacuos.lightengine.demo.levels;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
-import java.util.Random;
-import java.util.UUID;
-
 import org.lwjgl.glfw.GLFW;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -17,13 +14,12 @@ import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.network.Client;
 import net.luxvacuos.lightengine.client.network.ClientNetworkHandler;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow.WindowClose;
+import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.opengl.ParticleDomain;
 import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
 import net.luxvacuos.lightengine.demo.Global;
-import net.luxvacuos.lightengine.demo.ecs.entities.FreeCamera;
 import net.luxvacuos.lightengine.demo.ui.LoadWindow;
 import net.luxvacuos.lightengine.demo.ui.PauseWindow;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
