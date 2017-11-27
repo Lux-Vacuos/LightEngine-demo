@@ -16,11 +16,11 @@ import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.network.Client;
 import net.luxvacuos.lightengine.client.network.ClientNetworkHandler;
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow.WindowClose;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.ParticleDomain;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
+import net.luxvacuos.lightengine.client.rendering.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
+import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow.WindowClose;
+import net.luxvacuos.lightengine.client.rendering.opengl.ParticleDomain;
+import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
 import net.luxvacuos.lightengine.demo.Global;
 import net.luxvacuos.lightengine.demo.ecs.entities.FreeCamera;
@@ -58,7 +58,7 @@ public class Level3 extends AbstractState {
 		client = new Client();
 		if (!Global.ip.isEmpty())
 			client.setHost(Global.ip);
-		nh = new ClientNetworkHandler(client, new FreeCamera("player" + new Random().nextInt(1000), UUID.randomUUID().toString()));
+		nh = new ClientNetworkHandler(client, null);
 		client.run(nh, new SharedChannelHandler() {
 
 			@Override
@@ -85,7 +85,7 @@ public class Level3 extends AbstractState {
 							ClientVariables.NEAR_PLANE, ClientVariables.FAR_PLANE));
 		});
 
-		RenderEntity scene = new RenderEntity("", "levels/level3/city.fbx");
+		RenderEntity scene = new RenderEntity("", "levels/level3/models/building.fbx");
 		nh.getEngine().addEntity(scene);
 
 		client.sendPacket(new ClientConnect(Components.UUID.get(nh.getPlayer()).getUUID(),
