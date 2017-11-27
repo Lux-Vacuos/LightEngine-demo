@@ -1,0 +1,3 @@
+[submodule "LightEngine"]
+	path = LightEngine
+	url = https://github.com/Lux-Vacuos/LightEngine.git
