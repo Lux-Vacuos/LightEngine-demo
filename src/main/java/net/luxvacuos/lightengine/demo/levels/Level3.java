@@ -2,6 +2,9 @@ package net.luxvacuos.lightengine.demo.levels;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
+import java.util.Random;
+import java.util.UUID;
+
 import org.lwjgl.glfw.GLFW;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -20,6 +23,7 @@ import net.luxvacuos.lightengine.client.rendering.opengl.ParticleDomain;
 import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
 import net.luxvacuos.lightengine.demo.Global;
+import net.luxvacuos.lightengine.demo.ecs.entities.FreeCamera;
 import net.luxvacuos.lightengine.demo.ui.LoadWindow;
 import net.luxvacuos.lightengine.demo.ui.PauseWindow;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
@@ -54,7 +58,7 @@ public class Level3 extends AbstractState {
 		client = new Client();
 		if (!Global.ip.isEmpty())
 			client.setHost(Global.ip);
-		nh = new ClientNetworkHandler(client, null);
+		nh = new ClientNetworkHandler(client, new FreeCamera("player" + new Random().nextInt(1000), UUID.randomUUID().toString()));
 		client.run(nh, new SharedChannelHandler() {
 
 			@Override
@@ -122,17 +126,8 @@ public class Level3 extends AbstractState {
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
 				MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), false);
-				GraphicalSubsystem.getWindowManager().toggleShell();
 				Global.paused = true;
-				int borderSize = (int) REGISTRY
-						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
-				int titleBarHeight = (int) REGISTRY
-						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
-				int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
-				pauseWindow = new PauseWindow(borderSize + 10, height - titleBarHeight - 10,
-						(int) ((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - borderSize * 2f
-								- 20),
-						(int) (height - titleBarHeight - borderSize - 50));
+				pauseWindow = new PauseWindow();
 				GraphicalSubsystem.getWindowManager().addWindow(pauseWindow);
 			}
 		} else if (Global.exitWorld) {

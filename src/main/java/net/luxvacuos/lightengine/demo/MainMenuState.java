@@ -60,9 +60,7 @@ public class MainMenuState extends AbstractState {
 	public void start() {
 		if (!GraphicalSubsystem.getWindowManager().isShellEnabled())
 			GraphicalSubsystem.getWindowManager().toggleShell();
-		background = new BackgroundWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
+		background = new BackgroundWindow();
 		GraphicalSubsystem.getWindowManager().addWindow(0, background);
 		int ww = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
 		int wh = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));

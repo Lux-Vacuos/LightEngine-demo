@@ -30,8 +30,8 @@ import net.luxvacuos.lightengine.demo.Global;
 
 public class PauseWindow extends ComponentWindow {
 
-	public PauseWindow(int x, int y, int w, int h) {
-		super(x, y, w, h, "Pause");
+	public PauseWindow() {
+		super("Pause");
 	}
 
 	@Override
@@ -64,10 +64,11 @@ public class PauseWindow extends ComponentWindow {
 		if (message == WindowMessage.WM_CLOSE && ((WindowClose) param) == WindowClose.DISPOSE) {
 			Global.paused = false;
 			MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
-			GraphicalSubsystem.getWindowManager().toggleShell();
 			super.processWindowMessage(message, param);
 		} else if (message == WindowMessage.WM_CLOSE && ((WindowClose) param) == WindowClose.DO_NOTHING) {
 			super.processWindowMessage(message, WindowClose.DISPOSE);
+		} else {
+			super.processWindowMessage(message, param);
 		}
 	}
 

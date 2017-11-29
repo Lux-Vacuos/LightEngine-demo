@@ -121,17 +121,8 @@ public class Level2 extends AbstractState {
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
 				MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), false);
-				GraphicalSubsystem.getWindowManager().toggleShell();
 				Global.paused = true;
-				int borderSize = (int) REGISTRY
-						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
-				int titleBarHeight = (int) REGISTRY
-						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
-				int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
-				pauseWindow = new PauseWindow(borderSize + 10, height - titleBarHeight - 10,
-						(int) ((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - borderSize * 2f
-								- 20),
-						(int) (height - titleBarHeight - borderSize - 50));
+				pauseWindow = new PauseWindow();
 				GraphicalSubsystem.getWindowManager().addWindow(pauseWindow);
 			}
 		} else if (Global.exitWorld) {
