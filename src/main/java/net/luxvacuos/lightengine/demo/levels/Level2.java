@@ -7,15 +7,15 @@ import org.lwjgl.glfw.GLFW;
 import io.netty.channel.ChannelHandlerContext;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
+import net.luxvacuos.lightengine.client.core.subsystems.NetworkSubsystem;
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderEntity;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
-import net.luxvacuos.lightengine.client.network.Client;
 import net.luxvacuos.lightengine.client.network.ClientNetworkHandler;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow.WindowClose;
+import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.opengl.ParticleDomain;
 import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
@@ -26,6 +26,7 @@ import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.ecs.Components;
+import net.luxvacuos.lightengine.universal.network.ManagerChannelHandler;
 import net.luxvacuos.lightengine.universal.network.SharedChannelHandler;
 import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
 import net.luxvacuos.lightengine.universal.network.packets.ClientDisconnect;
@@ -38,8 +39,8 @@ public class Level2 extends AbstractState {
 	private PauseWindow pauseWindow;
 	private LoadWindow loadWindow;
 
-	private Client client;
 	private ClientNetworkHandler nh;
+	private SharedChannelHandler local;
 
 	public Level2() {
 		super("Level2");
@@ -51,11 +52,8 @@ public class Level2 extends AbstractState {
 		GraphicalSubsystem.getWindowManager().addWindow(loadWindow);
 		Renderer.init(GraphicalSubsystem.getMainWindow());
 		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
-		client = new Client();
-		if (!Global.ip.isEmpty())
-			client.setHost(Global.ip);
-		nh = new ClientNetworkHandler(client, null);
-		client.run(nh, new SharedChannelHandler() {
+
+		local = new SharedChannelHandler() {
 
 			@Override
 			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -70,7 +68,22 @@ public class Level2 extends AbstractState {
 				if (pauseWindow != null)
 					pauseWindow.notifyWindow(WindowMessage.WM_CLOSE, WindowClose.DO_NOTHING);
 			}
-		});
+		};
+
+		ManagerChannelHandler mch = NetworkSubsystem.getManagerChannelHandler();
+
+		nh = new ClientNetworkHandler(null);
+		mch.addChannelHandler(nh);
+		mch.addChannelHandler(local);
+		
+		try {
+			NetworkSubsystem.connect(Global.ip, 44454);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		NetworkSubsystem.sendPacket(new ClientConnect(Components.UUID.get(nh.getPlayer()).getUUID(),
+				Components.NAME.get(nh.getPlayer()).getName()));
 
 		Renderer.setOnResize(() -> {
 			ClientComponents.PROJECTION_MATRIX.get(nh.getPlayer())
@@ -83,8 +96,6 @@ public class Level2 extends AbstractState {
 		RenderEntity scene = new RenderEntity("", "levels/level2/models/level.blend");
 		nh.getEngine().addEntity(scene);
 
-		client.sendPacket(new ClientConnect(Components.UUID.get(nh.getPlayer()).getUUID(),
-				Components.NAME.get(nh.getPlayer()).getName()));
 		gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
@@ -95,10 +106,17 @@ public class Level2 extends AbstractState {
 	@Override
 	public void end() {
 		Global.loaded = false;
-		client.sendPacket(new ClientDisconnect(Components.UUID.get(nh.getPlayer()).getUUID(),
+		NetworkSubsystem.sendPacket(new ClientDisconnect(Components.UUID.get(nh.getPlayer()).getUUID(),
 				Components.NAME.get(nh.getPlayer()).getName()));
+		try {
+			NetworkSubsystem.disconnect();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		ManagerChannelHandler mch = NetworkSubsystem.getManagerChannelHandler();
+		mch.removeChannelHandler(nh);
+		mch.removeChannelHandler(local);
 		nh.dispose();
-		client.end();
 		super.end();
 	}
 

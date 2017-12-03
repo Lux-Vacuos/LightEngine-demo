@@ -14,7 +14,7 @@ import net.luxvacuos.lightengine.server.commands.SayCommand;
 import net.luxvacuos.lightengine.server.commands.ServerCommandManager;
 import net.luxvacuos.lightengine.server.commands.StopCommand;
 import net.luxvacuos.lightengine.server.console.Console;
-import net.luxvacuos.lightengine.server.network.Server;
+import net.luxvacuos.lightengine.server.core.subsystems.NetworkSubsystem;
 import net.luxvacuos.lightengine.server.network.ServerNetworkHandler;
 import net.luxvacuos.lightengine.universal.commands.ICommandManager;
 import net.luxvacuos.lightengine.universal.commands.StateCommand;
@@ -24,6 +24,7 @@ import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
+import net.luxvacuos.lightengine.universal.network.ManagerChannelHandler;
 import net.luxvacuos.lightengine.universal.util.VectoVec;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 import net.luxvacuos.lightengine.universal.world.DynamicObject;
@@ -32,7 +33,6 @@ import net.luxvacuos.lightengine.universal.world.PhysicsSystem;
 public class ServerState extends AbstractState {
 	private Console console;
 	private ICommandManager commandManager;
-	private Server server;
 	private ServerNetworkHandler nh;
 
 	public ServerState() {
@@ -41,9 +41,17 @@ public class ServerState extends AbstractState {
 
 	@Override
 	public void init() {
-		server = new Server((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Server/port")));
 		nh = new ServerNetworkHandler();
-		server.run(nh);
+
+		ManagerChannelHandler mch = NetworkSubsystem.getManagerChannelHandler();
+		mch.addChannelHandler(nh);
+
+		try {
+			NetworkSubsystem.bind((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Server/port")));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		CollisionShape groundShape = new BoxShape(VectoVec.toVec3(new Vector3f(30, 2, 30)));
 		Transform groundTransform = new Transform();
 		groundTransform.setIdentity();
@@ -86,7 +94,11 @@ public class ServerState extends AbstractState {
 	public void dispose() {
 		nh.dispose();
 		console.stop();
-		server.end();
+		try {
+			NetworkSubsystem.disconnect();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
