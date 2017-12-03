@@ -59,7 +59,7 @@ public class MainWindow extends ComponentWindow {
 
 		playButton.setOnButtonPress(() -> {
 			GraphicalSubsystem.getWindowManager()
-					.addWindow(new MultiplayerWindow(w / 2 - 250 + x, y - 100, 500, 400, this));
+					.addWindow(new MultiplayerWindow(w / 2 - 250 + x, y - 100, 500, 400));
 		});
 
 		optionsButton.setOnButtonPress(() -> {

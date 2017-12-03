@@ -1,7 +1,6 @@
 {
 	"lightengine.mainwindow.name":"Main Window",
 	"lightengine.mainwindow.btnplay":"Singleplayer",
-	"lightengine.mainwindow.btnemu":"Chip-8",
 	"lightengine.mainwindow.btnoptions":"Options",
 	"lightengine.mainwindow.btnexit":"Exit",
 	"lightengine.mpwindow.name":"Multiplayer",

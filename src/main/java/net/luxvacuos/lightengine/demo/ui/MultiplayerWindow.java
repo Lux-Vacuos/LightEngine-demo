@@ -7,7 +7,7 @@ import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 import java.util.Arrays;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.nanovg.NanoWindow;
+import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
@@ -20,12 +20,10 @@ import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 
 public class MultiplayerWindow extends ComponentWindow {
 
-	private NanoWindow root;
 	private String level;
 
-	public MultiplayerWindow(int x, int y, int w, int h, NanoWindow root) {
+	public MultiplayerWindow(int x, int y, int w, int h) {
 		super(x, y, w, h, LANG.getRegistryItem("lightengine.mpwindow.name"));
-		this.root = root;
 	}
 
 	@Override
@@ -55,6 +53,7 @@ public class MultiplayerWindow extends ComponentWindow {
 			address.setText("");
 			GraphicalSubsystem.getWindowManager().toggleShell();
 			super.closeWindow();
+			IWindow root = GraphicalSubsystem.getWindowManager().getWindowByClass("MainWindow");
 			root.setWindowClose(WindowClose.DISPOSE);
 			root.closeWindow();
 			TaskManager.addTaskUpdate(() -> StateMachine.setCurrentState(level));
