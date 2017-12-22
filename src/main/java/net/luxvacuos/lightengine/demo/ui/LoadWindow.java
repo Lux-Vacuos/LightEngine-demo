@@ -1,23 +1,19 @@
 package net.luxvacuos.lightengine.demo.ui;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Spinner;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
-import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
+import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
+import net.luxvacuos.lightengine.universal.util.IEvent;
 
 public class LoadWindow extends ComponentWindow {
 
 	private float timerOnTop;
+	private IEvent onRenInit;
 
 	public LoadWindow() {
-		super(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), "Loader");
+		super("Loader");
 	}
 
 	@Override
@@ -30,6 +26,16 @@ public class LoadWindow extends ComponentWindow {
 		load.setWindowAlignment(Alignment.RIGHT_BOTTOM);
 		super.addComponent(load);
 		super.initApp();
+		
+		onRenInit = EventSubsystem.addEvent("lightengine.renderer.initialized", () -> {
+			super.closeWindow();
+		});
+	}
+	
+	@Override
+	public void disposeApp() {
+		super.disposeApp();
+		EventSubsystem.removeEvent("lightengine.renderer.initialized", onRenInit);
 	}
 
 	@Override
@@ -40,16 +46,6 @@ public class LoadWindow extends ComponentWindow {
 			timerOnTop = 0;
 		}
 		super.alwaysUpdateApp(delta);
-	}
-
-	@Override
-	public void processWindowMessage(int message, Object param) {
-		if (message == WindowMessage.WM_RESIZE) {
-			y = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
-			w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
-			h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
-		}
-		super.processWindowMessage(message, param);
 	}
 
 }

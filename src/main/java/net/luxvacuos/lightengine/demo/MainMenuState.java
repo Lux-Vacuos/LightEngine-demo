@@ -30,6 +30,7 @@ import net.luxvacuos.lightengine.demo.levels.Level0;
 import net.luxvacuos.lightengine.demo.levels.Level1;
 import net.luxvacuos.lightengine.demo.levels.Level2;
 import net.luxvacuos.lightengine.demo.levels.Level3;
+import net.luxvacuos.lightengine.demo.levels.Level4;
 import net.luxvacuos.lightengine.demo.ui.MainWindow;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
@@ -44,16 +45,6 @@ public class MainMenuState extends AbstractState {
 
 	public MainMenuState() {
 		super(StateNames.MAIN);
-	}
-
-	@Override
-	public void init() {
-		super.init();
-		TaskManager.addTask(() -> StateMachine.registerState(new Level0()));
-		TaskManager.addTask(() -> StateMachine.registerState(new Level1()));
-		TaskManager.addTask(() -> StateMachine.registerState(new Level2()));
-		TaskManager.addTask(() -> StateMachine.registerState(new Level3()));
-		// TaskManager.addTask(() -> StateMachine.registerState(new GameState()));
 	}
 
 	@Override
@@ -83,11 +74,6 @@ public class MainMenuState extends AbstractState {
 
 	@Override
 	public void update(float delta) {
-	}
-
-	public static void main(String[] args) {
-		TaskManager.addTask(() -> StateMachine.registerState(new MainMenuState()));
-		new Bootstrap(args);
 	}
 
 }

@@ -1,8 +1,5 @@
 package net.luxvacuos.lightengine.demo.levels;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -10,10 +7,8 @@ import java.util.UUID;
 import org.lwjgl.glfw.GLFW;
 
 import io.netty.channel.ChannelHandlerContext;
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.core.subsystems.NetworkSubsystem;
-import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderEntity;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
@@ -29,7 +24,6 @@ import net.luxvacuos.lightengine.demo.Global;
 import net.luxvacuos.lightengine.demo.ecs.entities.FreeCamera;
 import net.luxvacuos.lightengine.demo.ui.LoadWindow;
 import net.luxvacuos.lightengine.demo.ui.PauseWindow;
-import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
@@ -39,7 +33,6 @@ import net.luxvacuos.lightengine.universal.network.SharedChannelHandler;
 import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
 import net.luxvacuos.lightengine.universal.network.packets.ClientDisconnect;
 import net.luxvacuos.lightengine.universal.network.packets.Disconnect;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class Level1 extends AbstractState {
 
@@ -62,7 +55,7 @@ public class Level1 extends AbstractState {
 		GraphicalSubsystem.getWindowManager().addWindow(loadWindow);
 		Renderer.init(GraphicalSubsystem.getMainWindow());
 		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
-		
+
 		local = new SharedChannelHandler() {
 
 			@Override
@@ -82,40 +75,31 @@ public class Level1 extends AbstractState {
 
 		ManagerChannelHandler mch = NetworkSubsystem.getManagerChannelHandler();
 
-		nh = new ClientNetworkHandler(new FreeCamera("player" + new Random().nextInt(1000), UUID.randomUUID().toString()));
+		nh = new ClientNetworkHandler(
+				new FreeCamera("player" + new Random().nextInt(1000), UUID.randomUUID().toString()));
 		mch.addChannelHandler(nh);
 		mch.addChannelHandler(local);
-		
+
 		try {
 			NetworkSubsystem.connect(Global.ip, 44454);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		NetworkSubsystem.sendPacket(new ClientConnect(Components.UUID.get(nh.getPlayer()).getUUID(),
 				Components.NAME.get(nh.getPlayer()).getName()));
 
-		Renderer.setOnResize(() -> {
-			ClientComponents.PROJECTION_MATRIX.get(nh.getPlayer())
-					.setProjectionMatrix(Renderer.createProjectionMatrix(
-							(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-							(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-							(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")),
-							ClientVariables.NEAR_PLANE, ClientVariables.FAR_PLANE));
-		});
+		// waterTiles = new ArrayList<>();
+		// for (int x = -32; x <= 700; x++)
+		// for (int z = -32; z <= 700; z++)
+		// waterTiles.add(new WaterTile(x * WaterTile.TILE_SIZE, 0.5f, z *
+		// WaterTile.TILE_SIZE));
 
-		waterTiles = new ArrayList<>();
-		for (int x = -128; x <= 128; x++)
-			for (int z = -128; z <= 128; z++)
-				waterTiles.add(new WaterTile(x * WaterTile.TILE_SIZE, 0.5f, z * WaterTile.TILE_SIZE));
-
-		RenderEntity city = new RenderEntity("", "levels/level1/city.blend");
+		RenderEntity city = new RenderEntity("", "levels/level1/city.fbx");
 
 		nh.getEngine().addEntity(city);
 
-		gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
+		gameWindow = new GameWindow();
 		GraphicalSubsystem.getWindowManager().addWindow(0, gameWindow);
 
 		super.start();
@@ -124,7 +108,7 @@ public class Level1 extends AbstractState {
 	@Override
 	public void end() {
 		Global.loaded = false;
-		TaskManager.addTask(() -> waterTiles.clear());
+		// TaskManager.addTask(() -> waterTiles.clear());
 
 		NetworkSubsystem.sendPacket(new ClientDisconnect(Components.UUID.get(nh.getPlayer()).getUUID(),
 				Components.NAME.get(nh.getPlayer()).getName()));
@@ -145,7 +129,6 @@ public class Level1 extends AbstractState {
 		Window window = GraphicalSubsystem.getMainWindow();
 		if (!Global.loaded) {
 			if (window.getAssimpResourceLoader().isDoneLoading()) {
-				loadWindow.closeWindow();
 				Global.loaded = true;
 			}
 			return;
@@ -153,8 +136,7 @@ public class Level1 extends AbstractState {
 		KeyboardHandler kbh = window.getKeyboardHandler();
 		if (!Global.paused) {
 			nh.update(delta);
-			Renderer.getLightRenderer().update(delta);
-			ParticleDomain.update(delta, nh.getPlayer());
+			ParticleDomain.update(delta, nh.getCamera());
 
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
@@ -181,7 +163,7 @@ public class Level1 extends AbstractState {
 	public void render(float alpha) {
 		if (!Global.loaded)
 			return;
-		Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), waterTiles, nh.getPlayer(),
+		Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), waterTiles, nh.getCamera(),
 				nh.getWorldSimulation(), nh.getSun(), alpha);
 	}
 

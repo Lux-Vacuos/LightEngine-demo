@@ -1,14 +1,16 @@
 package net.luxvacuos.lightengine.demo.levels;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
+import java.util.Random;
+import java.util.UUID;
 
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 import io.netty.channel.ChannelHandlerContext;
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.core.subsystems.NetworkSubsystem;
-import net.luxvacuos.lightengine.client.ecs.ClientComponents;
+import net.luxvacuos.lightengine.client.ecs.entities.FPSPlayer;
+import net.luxvacuos.lightengine.client.ecs.entities.PlayerCamera;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderEntity;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
@@ -31,7 +33,6 @@ import net.luxvacuos.lightengine.universal.network.SharedChannelHandler;
 import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
 import net.luxvacuos.lightengine.universal.network.packets.ClientDisconnect;
 import net.luxvacuos.lightengine.universal.network.packets.Disconnect;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class Level2 extends AbstractState {
 
@@ -72,33 +73,26 @@ public class Level2 extends AbstractState {
 
 		ManagerChannelHandler mch = NetworkSubsystem.getManagerChannelHandler();
 
-		nh = new ClientNetworkHandler(null);
+		nh = new ClientNetworkHandler(new FPSPlayer("player" + new Random().nextInt(1000), new Vector3f(0, 100, 0)));
 		mch.addChannelHandler(nh);
 		mch.addChannelHandler(local);
-		
+
 		try {
 			NetworkSubsystem.connect(Global.ip, 44454);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		NetworkSubsystem.sendPacket(new ClientConnect(Components.UUID.get(nh.getPlayer()).getUUID(),
 				Components.NAME.get(nh.getPlayer()).getName()));
 
-		Renderer.setOnResize(() -> {
-			ClientComponents.PROJECTION_MATRIX.get(nh.getPlayer())
-					.setProjectionMatrix(Renderer.createProjectionMatrix(
-							(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-							(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-							(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")),
-							ClientVariables.NEAR_PLANE, ClientVariables.FAR_PLANE));
-		});
 		RenderEntity scene = new RenderEntity("", "levels/level2/models/level.blend");
 		nh.getEngine().addEntity(scene);
+		
+		nh.setCamera(new PlayerCamera("camera", UUID.randomUUID().toString()));
+		nh.getPlayer().addEntity(nh.getCamera());
 
-		gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
+		gameWindow = new GameWindow();
 		GraphicalSubsystem.getWindowManager().addWindow(0, gameWindow);
 		super.start();
 	}
@@ -125,7 +119,6 @@ public class Level2 extends AbstractState {
 		Window window = GraphicalSubsystem.getMainWindow();
 		if (!Global.loaded) {
 			if (window.getAssimpResourceLoader().isDoneLoading()) {
-				loadWindow.closeWindow();
 				Global.loaded = true;
 			}
 			return;
@@ -133,8 +126,7 @@ public class Level2 extends AbstractState {
 		KeyboardHandler kbh = window.getKeyboardHandler();
 		if (!Global.paused) {
 			nh.update(delta);
-			Renderer.getLightRenderer().update(delta);
-			ParticleDomain.update(delta, nh.getPlayer());
+			ParticleDomain.update(delta, nh.getCamera());
 
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
@@ -161,7 +153,7 @@ public class Level2 extends AbstractState {
 	public void render(float alpha) {
 		if (!Global.loaded)
 			return;
-		Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), null, nh.getPlayer(),
+		Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), null, nh.getCamera(),
 				nh.getWorldSimulation(), nh.getSun(), alpha);
 	}
 

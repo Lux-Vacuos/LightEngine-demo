@@ -60,7 +60,7 @@ public class MultiplayerWindow extends ComponentWindow {
 		});
 
 		DropDown<String> levels = new DropDown<>(0, 50, 300, 30, "Select Level",
-				Arrays.asList("Level0", "Level1", "Level2", "Level3"));
+				Arrays.asList("Level0", "Level1", "Level2", "Level3", "Level4"));
 		levels.setAlignment(Alignment.CENTER);
 		levels.setWindowAlignment(Alignment.CENTER);
 

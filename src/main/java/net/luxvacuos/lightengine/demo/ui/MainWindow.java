@@ -98,7 +98,7 @@ public class MainWindow extends ComponentWindow {
 								} catch (InterruptedException e) {
 									e.printStackTrace();
 								}
-							TaskManager.addTask(() -> StateMachine.stop());
+							TaskManager.addTask(() -> StateMachine.dispose());
 						}).start();
 						super.setWindowClose(WindowClose.DISPOSE);
 						GraphicalSubsystem.getWindowManager().closeAllWindows();
