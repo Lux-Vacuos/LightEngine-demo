@@ -100,6 +100,7 @@ public class Level2 extends AbstractState {
 	@Override
 	public void end() {
 		Global.loaded = false;
+		Renderer.cleanUp();
 		NetworkSubsystem.sendPacket(new ClientDisconnect(Components.UUID.get(nh.getPlayer()).getUUID(),
 				Components.NAME.get(nh.getPlayer()).getName()));
 		try {
