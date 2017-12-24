@@ -96,7 +96,6 @@ public class Level3 extends AbstractState {
 	@Override
 	public void end() {
 		Global.loaded = false;
-		Renderer.cleanUp();
 		NetworkSubsystem.sendPacket(new ClientDisconnect(Components.UUID.get(nh.getPlayer()).getUUID(),
 				Components.NAME.get(nh.getPlayer()).getName()));
 		try {
@@ -148,8 +147,6 @@ public class Level3 extends AbstractState {
 
 	@Override
 	public void render(float alpha) {
-		if (!Global.loaded)
-			return;
 		Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), null, nh.getCamera(),
 				nh.getWorldSimulation(), nh.getSun(), alpha);
 	}

@@ -109,7 +109,6 @@ public class Level1 extends AbstractState {
 	public void end() {
 		Global.loaded = false;
 		// TaskManager.addTask(() -> waterTiles.clear());
-		Renderer.cleanUp();
 		NetworkSubsystem.sendPacket(new ClientDisconnect(Components.UUID.get(nh.getPlayer()).getUUID(),
 				Components.NAME.get(nh.getPlayer()).getName()));
 		try {
@@ -161,8 +160,6 @@ public class Level1 extends AbstractState {
 
 	@Override
 	public void render(float alpha) {
-		if (!Global.loaded)
-			return;
 		Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), waterTiles, nh.getCamera(),
 				nh.getWorldSimulation(), nh.getSun(), alpha);
 	}

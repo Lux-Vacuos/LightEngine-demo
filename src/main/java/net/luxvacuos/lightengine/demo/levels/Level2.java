@@ -73,7 +73,7 @@ public class Level2 extends AbstractState {
 
 		ManagerChannelHandler mch = NetworkSubsystem.getManagerChannelHandler();
 
-		nh = new ClientNetworkHandler(new FPSPlayer("player" + new Random().nextInt(1000), new Vector3f(0, 100, 0)));
+		nh = new ClientNetworkHandler(new FPSPlayer("player" + new Random().nextInt(1000), new Vector3f(3, 2, 0)));
 		mch.addChannelHandler(nh);
 		mch.addChannelHandler(local);
 
@@ -100,7 +100,6 @@ public class Level2 extends AbstractState {
 	@Override
 	public void end() {
 		Global.loaded = false;
-		Renderer.cleanUp();
 		NetworkSubsystem.sendPacket(new ClientDisconnect(Components.UUID.get(nh.getPlayer()).getUUID(),
 				Components.NAME.get(nh.getPlayer()).getName()));
 		try {
@@ -152,8 +151,6 @@ public class Level2 extends AbstractState {
 
 	@Override
 	public void render(float alpha) {
-		if (!Global.loaded)
-			return;
 		Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), null, nh.getCamera(),
 				nh.getWorldSimulation(), nh.getSun(), alpha);
 	}
