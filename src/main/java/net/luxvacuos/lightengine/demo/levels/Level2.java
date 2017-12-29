@@ -20,7 +20,12 @@ import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow.WindowClose;
 import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.opengl.ParticleDomain;
 import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedTexture;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.ParticleTexture;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
+import net.luxvacuos.lightengine.client.world.particles.ParticleSystem;
 import net.luxvacuos.lightengine.demo.Global;
 import net.luxvacuos.lightengine.demo.ui.LoadWindow;
 import net.luxvacuos.lightengine.demo.ui.PauseWindow;
@@ -42,6 +47,9 @@ public class Level2 extends AbstractState {
 
 	private ClientNetworkHandler nh;
 	private SharedChannelHandler local;
+
+	private ParticleSystem particleSystem;
+	private CachedTexture fire;
 
 	public Level2() {
 		super("Level2");
@@ -88,9 +96,18 @@ public class Level2 extends AbstractState {
 
 		RenderEntity scene = new RenderEntity("", "levels/level2/models/level.blend");
 		nh.getEngine().addEntity(scene);
-		
+
 		nh.setCamera(new PlayerCamera("camera", UUID.randomUUID().toString()));
 		nh.getPlayer().addEntity(nh.getCamera());
+
+		Light light1 = new Light(new Vector3f(0, 10, 10), new Vector3f(100), new Vector3f(60, 0, 0), 20, 18);
+		light1.setShadow(true);
+		nh.getEngine().addEntity(light1);
+
+		fire = CachedAssets.loadTexture("textures/particles/fire0.png");
+
+		particleSystem = new ParticleSystem(new ParticleTexture(fire.getID(), 4), 1000, 1, -1f, 3f, 6f);
+		particleSystem.setDirection(new Vector3f(0, -1, 0), 0.4f);
 
 		gameWindow = new GameWindow();
 		GraphicalSubsystem.getWindowManager().addWindow(0, gameWindow);
@@ -110,6 +127,7 @@ public class Level2 extends AbstractState {
 		ManagerChannelHandler mch = NetworkSubsystem.getManagerChannelHandler();
 		mch.removeChannelHandler(nh);
 		mch.removeChannelHandler(local);
+		fire.dispose();
 		nh.dispose();
 		super.end();
 	}
@@ -126,8 +144,8 @@ public class Level2 extends AbstractState {
 		KeyboardHandler kbh = window.getKeyboardHandler();
 		if (!Global.paused) {
 			nh.update(delta);
+			particleSystem.generateParticles(new Vector3f(0, 1.7f, -5), delta);
 			ParticleDomain.update(delta, nh.getCamera());
-
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
 				MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), false);
