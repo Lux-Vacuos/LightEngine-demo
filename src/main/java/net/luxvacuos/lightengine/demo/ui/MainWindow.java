@@ -58,8 +58,7 @@ public class MainWindow extends ComponentWindow {
 		exitButton.setWindowAlignment(Alignment.CENTER);
 
 		playButton.setOnButtonPress(() -> {
-			GraphicalSubsystem.getWindowManager()
-					.addWindow(new MultiplayerWindow(w / 2 - 250 + x, y - 100, 500, 400));
+			GraphicalSubsystem.getWindowManager().addWindow(new MultiplayerWindow(w / 2 - 250 + x, y - 100, 500, 400));
 		});
 
 		optionsButton.setOnButtonPress(() -> {
@@ -89,7 +88,7 @@ public class MainWindow extends ComponentWindow {
 			case DO_NOTHING:
 				ModalWindow window = new ModalWindow(340, 200, "", "Exit Demo");
 				GraphicalSubsystem.getWindowManager().addWindow(window);
-				TaskManager.addTask(() -> {
+				TaskManager.tm.addTask(() -> {
 					window.setOnAccept(() -> {
 						new Thread(() -> {
 							while (GraphicalSubsystem.getWindowManager().getTotalWindows() > 0)
@@ -98,7 +97,7 @@ public class MainWindow extends ComponentWindow {
 								} catch (InterruptedException e) {
 									e.printStackTrace();
 								}
-							TaskManager.addTask(() -> StateMachine.dispose());
+							TaskManager.tm.addTask(() -> StateMachine.dispose());
 						}).start();
 						super.setWindowClose(WindowClose.DISPOSE);
 						GraphicalSubsystem.getWindowManager().closeAllWindows();

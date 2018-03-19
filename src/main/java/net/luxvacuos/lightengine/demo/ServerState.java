@@ -20,6 +20,7 @@ import net.luxvacuos.lightengine.universal.commands.ICommandManager;
 import net.luxvacuos.lightengine.universal.commands.StateCommand;
 import net.luxvacuos.lightengine.universal.commands.TimeCommand;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
+import net.luxvacuos.lightengine.universal.core.IEngineLoader;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
@@ -108,8 +109,14 @@ public class ServerState extends AbstractState {
 
 	public static void main(String[] args) {
 		GlobalVariables.PROJECT = "LightEngineDemo";
-		TaskManager.addTask(() -> StateMachine.registerState(new ServerState()));
-		new Bootstrap(args);
+		new Bootstrap(args, new IEngineLoader() {
+
+			@Override
+			public void loadExternal() {
+				TaskManager.tm.addTask(() -> StateMachine.registerState(new ServerState()));
+			}
+
+		});
 	}
 
 }
