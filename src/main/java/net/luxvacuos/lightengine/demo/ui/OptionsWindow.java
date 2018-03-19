@@ -338,8 +338,6 @@ public class OptionsWindow extends ComponentWindow {
 		Text wmTitleText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.titlebarsize") + ": " + title,
 				20, 0);
 		wmTitleText.setWindowAlignment(Alignment.LEFT);
-		Text titleBorderText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.titlebarborder"), 20, 0);
-		titleBorderText.setWindowAlignment(Alignment.LEFT);
 		Text compositorText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.compositor"), 20, 0);
 		compositorText.setWindowAlignment(Alignment.LEFT);
 		Text themeText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.theme"), 20, 0);
@@ -354,8 +352,6 @@ public class OptionsWindow extends ComponentWindow {
 		Slider wmTitle = new Slider(-56, 0, 200, 20, title / 40f);
 		wmTitle.setPrecision(40f);
 		wmTitle.useCustomPrecision(true);
-		ToggleButton titleBorderButton = new ToggleButton(-50, 0, 80, 30,
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarBorder")));
 		ToggleButton compositorButton = new ToggleButton(-50, 0, 80, 30,
 				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/compositor")));
 		DropDown<String> themeDropdown = new DropDown<String>(-50, 0, 180, 30,
@@ -368,8 +364,6 @@ public class OptionsWindow extends ComponentWindow {
 		wmScroll.setWindowAlignment(Alignment.RIGHT);
 		wmTitle.setAlignment(Alignment.RIGHT);
 		wmTitle.setWindowAlignment(Alignment.RIGHT);
-		titleBorderButton.setWindowAlignment(Alignment.RIGHT);
-		titleBorderButton.setAlignment(Alignment.RIGHT);
 		compositorButton.setWindowAlignment(Alignment.RIGHT);
 		compositorButton.setAlignment(Alignment.RIGHT);
 		themeDropdown.setWindowAlignment(Alignment.RIGHT);
@@ -391,11 +385,6 @@ public class OptionsWindow extends ComponentWindow {
 			int val = (int) (wmTitle.getPosition() * 40f);
 			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"), val);
 			wmTitleText.setText(LANG.getRegistryItem("lightengine.optionswindow.wm.titlebarsize") + ": " + val);
-			GraphicalSubsystem.getWindowManager().notifyAllWindows(WindowMessage.WM_COMPOSITOR_RELOAD, null);
-		});
-		titleBorderButton.setOnButtonPress(() -> {
-			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarBorder"),
-					titleBorderButton.getStatus());
 			GraphicalSubsystem.getWindowManager().notifyAllWindows(WindowMessage.WM_COMPOSITOR_RELOAD, null);
 		});
 		compositorButton.setOnButtonPress(() -> {
@@ -421,9 +410,6 @@ public class OptionsWindow extends ComponentWindow {
 		Container titleC = new Container(0, 0, w, 20);
 		titleC.setWindowAlignment(Alignment.LEFT_TOP);
 		titleC.setAlignment(Alignment.RIGHT_BOTTOM);
-		Container titleBorder = new Container(0, 0, w, 30);
-		titleBorder.setWindowAlignment(Alignment.LEFT_TOP);
-		titleBorder.setAlignment(Alignment.RIGHT_BOTTOM);
 		Container compositor = new Container(0, 0, w, 30);
 		compositor.setWindowAlignment(Alignment.LEFT_TOP);
 		compositor.setAlignment(Alignment.RIGHT_BOTTOM);
@@ -437,8 +423,6 @@ public class OptionsWindow extends ComponentWindow {
 		scrollC.addComponent(wmScroll);
 		titleC.addComponent(wmTitleText);
 		titleC.addComponent(wmTitle);
-		titleBorder.addComponent(titleBorderButton);
-		titleBorder.addComponent(titleBorderText);
 		compositor.addComponent(compositorButton);
 		compositor.addComponent(compositorText);
 		theme.addComponent(themeDropdown);
@@ -447,14 +431,12 @@ public class OptionsWindow extends ComponentWindow {
 		borderC.setResizeH(true);
 		scrollC.setResizeH(true);
 		titleC.setResizeH(true);
-		titleBorder.setResizeH(true);
 		compositor.setResizeH(true);
 		theme.setResizeH(true);
 
 		area.addComponent(borderC);
 		area.addComponent(scrollC);
 		area.addComponent(titleC);
-		area.addComponent(titleBorder);
 		area.addComponent(compositor);
 		area.addComponent(theme);
 
