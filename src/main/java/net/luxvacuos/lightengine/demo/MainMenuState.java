@@ -46,6 +46,16 @@ public class MainMenuState extends AbstractState {
 	public MainMenuState() {
 		super(StateNames.MAIN);
 	}
+	
+	@Override
+	public void init() {
+		super.init();
+		TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.registerState(new Level0()));
+		TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.registerState(new Level1()));
+		TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.registerState(new Level2()));
+		TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.registerState(new Level3()));
+		TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.registerState(new Level4()));
+	}
 
 	@Override
 	public void start() {

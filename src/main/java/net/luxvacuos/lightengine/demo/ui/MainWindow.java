@@ -88,7 +88,7 @@ public class MainWindow extends ComponentWindow {
 			case DO_NOTHING:
 				ModalWindow window = new ModalWindow(340, 200, "", "Exit Demo");
 				GraphicalSubsystem.getWindowManager().addWindow(window);
-				TaskManager.tm.addTask(() -> {
+				TaskManager.tm.addTaskMainThread(() -> {
 					window.setOnAccept(() -> {
 						new Thread(() -> {
 							while (GraphicalSubsystem.getWindowManager().getTotalWindows() > 0)
@@ -97,7 +97,7 @@ public class MainWindow extends ComponentWindow {
 								} catch (InterruptedException e) {
 									e.printStackTrace();
 								}
-							TaskManager.tm.addTask(() -> StateMachine.dispose());
+							TaskManager.tm.addTaskMainThread(() -> StateMachine.dispose());
 						}).start();
 						super.setWindowClose(WindowClose.DISPOSE);
 						GraphicalSubsystem.getWindowManager().closeAllWindows();

@@ -113,7 +113,7 @@ public class ServerState extends AbstractState {
 
 			@Override
 			public void loadExternal() {
-				TaskManager.tm.addTask(() -> StateMachine.registerState(new ServerState()));
+				TaskManager.tm.addTaskMainThread(() -> StateMachine.registerState(new ServerState()));
 			}
 
 		});

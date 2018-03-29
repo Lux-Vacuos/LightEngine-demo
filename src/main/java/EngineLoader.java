@@ -14,12 +14,7 @@ public class EngineLoader implements IEngineLoader {
 
 	@Override
 	public void loadExternal() {
-		TaskManager.tm.addTask(() -> StateMachine.registerState(new MainMenuState()));
-		TaskManager.tm.addTaskUpdate(() -> StateMachine.registerState(new Level0()));
-		TaskManager.tm.addTaskUpdate(() -> StateMachine.registerState(new Level1()));
-		TaskManager.tm.addTaskUpdate(() -> StateMachine.registerState(new Level2()));
-		TaskManager.tm.addTaskUpdate(() -> StateMachine.registerState(new Level3()));
-		TaskManager.tm.addTaskUpdate(() -> StateMachine.registerState(new Level4()));
+		TaskManager.tm.addTaskMainThread(() -> StateMachine.registerState(new MainMenuState()));
 	}
 
 	public static void main(String[] args) {

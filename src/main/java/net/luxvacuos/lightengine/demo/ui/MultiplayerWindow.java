@@ -56,7 +56,7 @@ public class MultiplayerWindow extends ComponentWindow {
 			IWindow root = GraphicalSubsystem.getWindowManager().getWindowByClass("MainWindow");
 			root.setWindowClose(WindowClose.DISPOSE);
 			root.closeWindow();
-			TaskManager.tm.addTaskUpdate(() -> StateMachine.setCurrentState(level));
+			TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.setCurrentState(level));
 		});
 
 		DropDown<String> levels = new DropDown<>(0, 50, 300, 30, "Select Level",
