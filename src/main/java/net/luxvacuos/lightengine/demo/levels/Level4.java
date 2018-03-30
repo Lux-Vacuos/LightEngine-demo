@@ -16,8 +16,6 @@ import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow.WindowClose;
 import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.opengl.ParticleDomain;
-import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
-import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
 import net.luxvacuos.lightengine.demo.Global;
 import net.luxvacuos.lightengine.demo.ecs.entities.FreeCamera;
 import net.luxvacuos.lightengine.demo.ui.LoadWindow;
@@ -34,7 +32,6 @@ import net.luxvacuos.lightengine.universal.network.packets.Disconnect;
 
 public class Level4 extends AbstractState {
 
-	private GameWindow gameWindow;
 	private PauseWindow pauseWindow;
 	private LoadWindow loadWindow;
 
@@ -49,7 +46,7 @@ public class Level4 extends AbstractState {
 	public void start() {
 		loadWindow = new LoadWindow();
 		GraphicalSubsystem.getWindowManager().addWindow(loadWindow);
-		Renderer.init(GraphicalSubsystem.getMainWindow());
+		GraphicalSubsystem.getRenderer().init();
 		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
 
 		local = new SharedChannelHandler() {
@@ -88,15 +85,12 @@ public class Level4 extends AbstractState {
 		RenderEntity scene = new RenderEntity("", "levels/level4/level1.blend");
 		nh.getEngine().addEntity(scene);
 
-		gameWindow = new GameWindow();
-		GraphicalSubsystem.getWindowManager().addWindow(0, gameWindow);
 		super.start();
 	}
 
 	@Override
 	public void end() {
 		Global.loaded = false;
-		Renderer.cleanUp();
 		NetworkSubsystem.sendPacket(new ClientDisconnect(Components.UUID.get(nh.getPlayer()).getUUID(),
 				Components.NAME.get(nh.getPlayer()).getName()));
 		try {
@@ -108,6 +102,7 @@ public class Level4 extends AbstractState {
 		mch.removeChannelHandler(nh);
 		mch.removeChannelHandler(local);
 		nh.dispose();
+		GraphicalSubsystem.getRenderer().dispose();
 		super.end();
 	}
 
@@ -134,7 +129,6 @@ public class Level4 extends AbstractState {
 				GraphicalSubsystem.getWindowManager().addWindow(pauseWindow);
 			}
 		} else if (Global.exitWorld) {
-			gameWindow.closeWindow();
 			Global.exitWorld = false;
 			Global.paused = false;
 			StateMachine.setCurrentState(StateNames.MAIN);
@@ -151,8 +145,7 @@ public class Level4 extends AbstractState {
 	public void render(float alpha) {
 		if (!Global.loaded)
 			return;
-		Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), null, nh.getCamera(),
-				nh.getWorldSimulation(), nh.getSun(), alpha);
+		GraphicalSubsystem.getRenderer().render(nh, alpha);
 	}
 
 }

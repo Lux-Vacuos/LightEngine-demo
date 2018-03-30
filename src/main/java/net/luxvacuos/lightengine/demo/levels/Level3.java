@@ -16,8 +16,6 @@ import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow.WindowClose;
 import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.opengl.ParticleDomain;
-import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
-import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
 import net.luxvacuos.lightengine.demo.Global;
 import net.luxvacuos.lightengine.demo.ecs.entities.FreeCamera;
 import net.luxvacuos.lightengine.demo.ui.LoadWindow;
@@ -34,7 +32,6 @@ import net.luxvacuos.lightengine.universal.network.packets.Disconnect;
 
 public class Level3 extends AbstractState {
 
-	private GameWindow gameWindow;
 	private PauseWindow pauseWindow;
 	private LoadWindow loadWindow;
 
@@ -49,7 +46,7 @@ public class Level3 extends AbstractState {
 	public void start() {
 		loadWindow = new LoadWindow();
 		GraphicalSubsystem.getWindowManager().addWindow(loadWindow);
-		Renderer.init(GraphicalSubsystem.getMainWindow());
+		GraphicalSubsystem.getRenderer().init();
 		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
 
 		local = new SharedChannelHandler() {
@@ -88,8 +85,6 @@ public class Level3 extends AbstractState {
 		RenderEntity scene = new RenderEntity("", "levels/level3/models/building.fbx");
 		nh.getEngine().addEntity(scene);
 
-		gameWindow = new GameWindow();
-		GraphicalSubsystem.getWindowManager().addWindow(0, gameWindow);
 		super.start();
 	}
 
@@ -107,6 +102,7 @@ public class Level3 extends AbstractState {
 		mch.removeChannelHandler(nh);
 		mch.removeChannelHandler(local);
 		nh.dispose();
+		GraphicalSubsystem.getRenderer().dispose();
 		super.end();
 	}
 
@@ -132,7 +128,6 @@ public class Level3 extends AbstractState {
 				GraphicalSubsystem.getWindowManager().addWindow(pauseWindow);
 			}
 		} else if (Global.exitWorld) {
-			gameWindow.closeWindow();
 			Global.exitWorld = false;
 			Global.paused = false;
 			StateMachine.setCurrentState(StateNames.MAIN);
@@ -147,8 +142,7 @@ public class Level3 extends AbstractState {
 
 	@Override
 	public void render(float alpha) {
-		Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), null, nh.getCamera(),
-				nh.getWorldSimulation(), nh.getSun(), alpha);
+		GraphicalSubsystem.getRenderer().render(nh, alpha);
 	}
 
 }

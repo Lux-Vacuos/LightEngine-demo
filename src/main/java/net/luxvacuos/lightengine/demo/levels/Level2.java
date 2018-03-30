@@ -19,12 +19,10 @@ import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow.WindowClose;
 import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.opengl.ParticleDomain;
-import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.ParticleTexture;
-import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
 import net.luxvacuos.lightengine.client.world.particles.ParticleSystem;
 import net.luxvacuos.lightengine.demo.Global;
 import net.luxvacuos.lightengine.demo.ui.LoadWindow;
@@ -41,7 +39,6 @@ import net.luxvacuos.lightengine.universal.network.packets.Disconnect;
 
 public class Level2 extends AbstractState {
 
-	private GameWindow gameWindow;
 	private PauseWindow pauseWindow;
 	private LoadWindow loadWindow;
 
@@ -59,7 +56,7 @@ public class Level2 extends AbstractState {
 	public void start() {
 		loadWindow = new LoadWindow();
 		GraphicalSubsystem.getWindowManager().addWindow(loadWindow);
-		Renderer.init(GraphicalSubsystem.getMainWindow());
+		GraphicalSubsystem.getRenderer().init();
 		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
 
 		local = new SharedChannelHandler() {
@@ -109,8 +106,6 @@ public class Level2 extends AbstractState {
 		particleSystem = new ParticleSystem(new ParticleTexture(fire.getID(), 4), 1000, 1, -1f, 3f, 6f);
 		particleSystem.setDirection(new Vector3f(0, -1, 0), 0.4f);
 
-		gameWindow = new GameWindow();
-		GraphicalSubsystem.getWindowManager().addWindow(0, gameWindow);
 		super.start();
 	}
 
@@ -129,6 +124,7 @@ public class Level2 extends AbstractState {
 		mch.removeChannelHandler(local);
 		fire.dispose();
 		nh.dispose();
+		GraphicalSubsystem.getRenderer().dispose();
 		super.end();
 	}
 
@@ -154,7 +150,6 @@ public class Level2 extends AbstractState {
 				GraphicalSubsystem.getWindowManager().addWindow(pauseWindow);
 			}
 		} else if (Global.exitWorld) {
-			gameWindow.closeWindow();
 			Global.exitWorld = false;
 			Global.paused = false;
 			StateMachine.setCurrentState(StateNames.MAIN);
@@ -169,8 +164,7 @@ public class Level2 extends AbstractState {
 
 	@Override
 	public void render(float alpha) {
-		Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), null, nh.getCamera(),
-				nh.getWorldSimulation(), nh.getSun(), alpha);
+		GraphicalSubsystem.getRenderer().render(nh, alpha);
 	}
 
 }
