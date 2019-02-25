@@ -84,7 +84,7 @@ public class Level4 extends AbstractState {
 
 		RenderEntity scene = new RenderEntity("", "levels/level4/level1.blend");
 		nh.getEngine().addEntity(scene);
-
+		loadWindow.completedStart();
 		super.start();
 	}
 

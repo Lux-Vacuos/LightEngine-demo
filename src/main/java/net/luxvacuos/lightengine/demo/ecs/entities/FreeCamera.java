@@ -23,6 +23,10 @@ public class FreeCamera extends CameraEntity {
 	private final int maxLookUp = 90;
 	private final int maxLookDown = -90;
 	private IEvent resize;
+	
+	public FreeCamera(String name) {
+		super(name);
+	}
 
 	public FreeCamera(String name, String uuid) {
 		super(name, uuid);

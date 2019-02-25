@@ -9,17 +9,16 @@ import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.linearmath.Transform;
 
-import net.luxvacuos.lightengine.server.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.server.commands.SayCommand;
 import net.luxvacuos.lightengine.server.commands.ServerCommandManager;
 import net.luxvacuos.lightengine.server.commands.StopCommand;
 import net.luxvacuos.lightengine.server.console.Console;
 import net.luxvacuos.lightengine.server.core.subsystems.NetworkSubsystem;
+import net.luxvacuos.lightengine.server.loader.ServerLoader;
 import net.luxvacuos.lightengine.server.network.ServerNetworkHandler;
 import net.luxvacuos.lightengine.universal.commands.ICommandManager;
 import net.luxvacuos.lightengine.universal.commands.StateCommand;
 import net.luxvacuos.lightengine.universal.commands.TimeCommand;
-import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.IEngineLoader;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
@@ -108,15 +107,12 @@ public class ServerState extends AbstractState {
 	}
 
 	public static void main(String[] args) {
-		GlobalVariables.PROJECT = "LightEngineDemo";
-		new Bootstrap(args, new IEngineLoader() {
-
+		new ServerLoader(new IEngineLoader() {
 			@Override
 			public void loadExternal() {
 				TaskManager.tm.addTaskMainThread(() -> StateMachine.registerState(new ServerState()));
 			}
-
-		});
+		}, "-p", "LightEngineDemoServer");
 	}
 
 }

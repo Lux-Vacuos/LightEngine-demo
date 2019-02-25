@@ -84,7 +84,7 @@ public class Level3 extends AbstractState {
 
 		RenderEntity scene = new RenderEntity("", "levels/level3/models/building.fbx");
 		nh.getEngine().addEntity(scene);
-
+		loadWindow.completedStart();
 		super.start();
 	}
 
@@ -101,8 +101,8 @@ public class Level3 extends AbstractState {
 		ManagerChannelHandler mch = NetworkSubsystem.getManagerChannelHandler();
 		mch.removeChannelHandler(nh);
 		mch.removeChannelHandler(local);
-		nh.dispose();
 		GraphicalSubsystem.getRenderer().dispose();
+		nh.dispose();
 		super.end();
 	}
 

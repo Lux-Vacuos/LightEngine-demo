@@ -6,6 +6,7 @@ import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 
 import java.util.Arrays;
 
+import net.luxvacuos.hybrid.states.States;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.ui.Alignment;
@@ -15,8 +16,9 @@ import net.luxvacuos.lightengine.client.ui.DropDown;
 import net.luxvacuos.lightengine.client.ui.EditBox;
 import net.luxvacuos.lightengine.client.ui.Text;
 import net.luxvacuos.lightengine.demo.Global;
+import net.luxvacuos.lightengine.universal.core.Task;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
-import net.luxvacuos.lightengine.universal.core.states.StateMachine;
+import net.luxvacuos.lightengine.universal.core.states.StateChangeTask;
 
 public class MultiplayerWindow extends ComponentWindow {
 
@@ -48,6 +50,9 @@ public class MultiplayerWindow extends ComponentWindow {
 		playButton.setOnButtonPress(() -> {
 			if (level == "Select Level")
 				return;
+			Task<Boolean> t = TaskManager.tm.submitBackgroundThread(new StateChangeTask(level));
+			if (!t.get())
+				return;
 			String ip = address.getText();
 			Global.ip = ip;
 			address.setText("");
@@ -56,11 +61,10 @@ public class MultiplayerWindow extends ComponentWindow {
 			IWindow root = GraphicalSubsystem.getWindowManager().getWindowByClass("MainWindow");
 			root.setWindowClose(WindowClose.DISPOSE);
 			root.closeWindow();
-			TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.setCurrentState(level));
 		});
 
 		DropDown<String> levels = new DropDown<>(0, 50, 300, 30, "Select Level",
-				Arrays.asList("Level0", "Level1", "Level2", "Level3", "Level4"));
+				Arrays.asList("Level0", "Level1", "Level2", "Level3", "Level4", States.CITY_STATE));
 		levels.setAlignment(Alignment.CENTER);
 		levels.setWindowAlignment(Alignment.CENTER);
 

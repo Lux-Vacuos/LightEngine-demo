@@ -22,7 +22,7 @@ package net.luxvacuos.lightengine.demo;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
-import net.luxvacuos.lightengine.client.bootstrap.Bootstrap;
+import net.luxvacuos.hybrid.states.CityState;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ui.windows.BackgroundWindow;
 import net.luxvacuos.lightengine.client.ui.windows.Profiler;
@@ -46,7 +46,7 @@ public class MainMenuState extends AbstractState {
 	public MainMenuState() {
 		super(StateNames.MAIN);
 	}
-	
+
 	@Override
 	public void init() {
 		super.init();
@@ -55,12 +55,14 @@ public class MainMenuState extends AbstractState {
 		TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.registerState(new Level2()));
 		TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.registerState(new Level3()));
 		TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.registerState(new Level4()));
+		TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.registerState(new CityState()));
 	}
 
 	@Override
 	public void start() {
-		if (!GraphicalSubsystem.getWindowManager().isShellEnabled())
-			GraphicalSubsystem.getWindowManager().toggleShell();
+		// TODO: For Debug
+		// if (!GraphicalSubsystem.getWindowManager().isShellEnabled())
+		// GraphicalSubsystem.getWindowManager().toggleShell();
 		background = new BackgroundWindow();
 		GraphicalSubsystem.getWindowManager().addWindow(0, background);
 		int ww = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
@@ -68,11 +70,12 @@ public class MainMenuState extends AbstractState {
 		int x = ww / 2 - 512;
 		int y = wh / 2 - 300;
 		GraphicalSubsystem.getWindowManager().addWindow(new MainWindow(x, wh - y, 1024, 600));
-		/*
-		 * if (!GraphicalSubsystem.getWindowManager().existWindow(profiler)) { profiler
-		 * = new Profiler(); GraphicalSubsystem.getWindowManager().addWindow(profiler);
-		 * }
-		 */
+
+		// if (!GraphicalSubsystem.getWindowManager().existWindow(profiler)) {
+		// profiler = new Profiler();
+		// GraphicalSubsystem.getWindowManager().addWindow(profiler);
+		// }
+
 		super.start();
 	}
 

@@ -6,23 +6,19 @@ import java.util.UUID;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
-import io.netty.channel.ChannelHandlerContext;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.core.subsystems.NetworkSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.FPSPlayer;
 import net.luxvacuos.lightengine.client.ecs.entities.PlayerCamera;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderEntity;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
-import net.luxvacuos.lightengine.client.network.ClientNetworkHandler;
+import net.luxvacuos.lightengine.client.network.LocalNetworkHandler;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow.WindowClose;
-import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.opengl.ParticleDomain;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.ParticleTexture;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
+import net.luxvacuos.lightengine.client.resources.ResourcesManager;
 import net.luxvacuos.lightengine.client.world.particles.ParticleSystem;
 import net.luxvacuos.lightengine.demo.Global;
 import net.luxvacuos.lightengine.demo.ui.LoadWindow;
@@ -30,23 +26,16 @@ import net.luxvacuos.lightengine.demo.ui.PauseWindow;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
-import net.luxvacuos.lightengine.universal.ecs.Components;
-import net.luxvacuos.lightengine.universal.network.ManagerChannelHandler;
-import net.luxvacuos.lightengine.universal.network.SharedChannelHandler;
-import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
-import net.luxvacuos.lightengine.universal.network.packets.ClientDisconnect;
-import net.luxvacuos.lightengine.universal.network.packets.Disconnect;
 
 public class Level2 extends AbstractState {
 
 	private PauseWindow pauseWindow;
 	private LoadWindow loadWindow;
 
-	private ClientNetworkHandler nh;
-	private SharedChannelHandler local;
+	private LocalNetworkHandler nh;
 
 	private ParticleSystem particleSystem;
-	private CachedTexture fire;
+	private Texture fire;
 
 	public Level2() {
 		super("Level2");
@@ -59,72 +48,35 @@ public class Level2 extends AbstractState {
 		GraphicalSubsystem.getRenderer().init();
 		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
 
-		local = new SharedChannelHandler() {
-
-			@Override
-			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-				if (msg instanceof Disconnect) {
-					handleDisconnect((Disconnect) msg);
-				}
-				super.channelRead(ctx, msg);
-			}
-
-			private void handleDisconnect(Disconnect disconnect) {
-				Global.exitWorld = true;
-				if (pauseWindow != null)
-					pauseWindow.notifyWindow(WindowMessage.WM_CLOSE, WindowClose.DO_NOTHING);
-			}
-		};
-
-		ManagerChannelHandler mch = NetworkSubsystem.getManagerChannelHandler();
-
-		nh = new ClientNetworkHandler(new FPSPlayer("player" + new Random().nextInt(1000), new Vector3f(3, 2, 0)));
-		mch.addChannelHandler(nh);
-		mch.addChannelHandler(local);
-
-		try {
-			NetworkSubsystem.connect(Global.ip, 44454);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		NetworkSubsystem.sendPacket(new ClientConnect(Components.UUID.get(nh.getPlayer()).getUUID(),
-				Components.NAME.get(nh.getPlayer()).getName()));
+		nh = new LocalNetworkHandler(new FPSPlayer("player" + new Random().nextInt(1000), new Vector3f(3, 2, 0)));
 
 		RenderEntity scene = new RenderEntity("", "levels/level2/models/level.blend");
 		nh.getEngine().addEntity(scene);
+		
+		RenderEntity chara = new RenderEntity("", "levels/level2/models/character.blend");
+		nh.getEngine().addEntity(chara);
 
 		nh.setCamera(new PlayerCamera("camera", UUID.randomUUID().toString()));
 		nh.getPlayer().addEntity(nh.getCamera());
 
 		Light light1 = new Light(new Vector3f(0, 10, 10), new Vector3f(100), new Vector3f(60, 0, 0), 20, 18);
 		light1.setShadow(true);
-		nh.getEngine().addEntity(light1);
+		//nh.getEngine().addEntity(light1);
 
-		fire = CachedAssets.loadTexture("textures/particles/fire0.png");
+		fire = ResourcesManager.loadTexture("textures/particles/fire0.png", null).get();
 
 		particleSystem = new ParticleSystem(new ParticleTexture(fire.getID(), 4), 1000, 1, -1f, 3f, 6f);
 		particleSystem.setDirection(new Vector3f(0, -1, 0), 0.4f);
-
+		loadWindow.completedStart();
 		super.start();
 	}
 
 	@Override
 	public void end() {
 		Global.loaded = false;
-		NetworkSubsystem.sendPacket(new ClientDisconnect(Components.UUID.get(nh.getPlayer()).getUUID(),
-				Components.NAME.get(nh.getPlayer()).getName()));
-		try {
-			NetworkSubsystem.disconnect();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		ManagerChannelHandler mch = NetworkSubsystem.getManagerChannelHandler();
-		mch.removeChannelHandler(nh);
-		mch.removeChannelHandler(local);
-		fire.dispose();
-		nh.dispose();
+		ResourcesManager.disposeTexture(fire);
 		GraphicalSubsystem.getRenderer().dispose();
+		nh.dispose();
 		super.end();
 	}
 

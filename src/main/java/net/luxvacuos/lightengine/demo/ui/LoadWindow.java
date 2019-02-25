@@ -4,13 +4,12 @@ import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Spinner;
-import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
-import net.luxvacuos.lightengine.universal.util.IEvent;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class LoadWindow extends ComponentWindow {
 
 	private float timerOnTop;
-	private IEvent onRenInit;
+	private boolean completedStart;
 
 	public LoadWindow() {
 		super("Loader");
@@ -26,16 +25,7 @@ public class LoadWindow extends ComponentWindow {
 		load.setWindowAlignment(Alignment.RIGHT_BOTTOM);
 		super.addComponent(load);
 		super.initApp();
-		
-		onRenInit = EventSubsystem.addEvent("lightengine.renderer.initialized", () -> {
-			super.closeWindow();
-		});
-	}
-	
-	@Override
-	public void disposeApp() {
-		super.disposeApp();
-		EventSubsystem.removeEvent("lightengine.renderer.initialized", onRenInit);
+
 	}
 
 	@Override
@@ -45,7 +35,13 @@ public class LoadWindow extends ComponentWindow {
 			GraphicalSubsystem.getWindowManager().bringToFront(this);
 			timerOnTop = 0;
 		}
+		if(TaskManager.tm.isEmpty() && completedStart)
+			super.closeWindow();
 		super.alwaysUpdateApp(delta);
+	}
+	
+	public void completedStart() {
+		completedStart = true;
 	}
 
 }
