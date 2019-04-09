@@ -76,13 +76,6 @@ public class MainWindow extends ComponentWindow {
 
 		super.setWindowClose(WindowClose.DO_NOTHING);
 		super.initApp();
-		// TODO: For debug
-		super.setWindowClose(WindowClose.DISPOSE);
-		super.closeWindow();
-		if (StateMachine.getPreviousState().getName().equals("Level2"))
-			TaskManager.tm.addTaskMainThread(() -> StateMachine.dispose());
-		else
-			TaskManager.tm.submitBackgroundThread(new StateChangeTask("Level2"));
 	}
 
 	@Override

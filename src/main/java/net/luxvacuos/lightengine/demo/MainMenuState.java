@@ -20,28 +20,21 @@
 
 package net.luxvacuos.lightengine.demo;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-
 import net.luxvacuos.hybrid.states.CityState;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.ui.windows.BackgroundWindow;
-import net.luxvacuos.lightengine.client.ui.windows.Profiler;
 import net.luxvacuos.lightengine.demo.levels.Level0;
 import net.luxvacuos.lightengine.demo.levels.Level1;
 import net.luxvacuos.lightengine.demo.levels.Level2;
 import net.luxvacuos.lightengine.demo.levels.Level3;
 import net.luxvacuos.lightengine.demo.levels.Level4;
-import net.luxvacuos.lightengine.demo.ui.MainWindow;
+import net.luxvacuos.lightengine.demo.ui.MainSurface;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class MainMenuState extends AbstractState {
 
-	private BackgroundWindow background;
-	private Profiler profiler;
 
 	public MainMenuState() {
 		super(StateNames.MAIN);
@@ -60,28 +53,12 @@ public class MainMenuState extends AbstractState {
 
 	@Override
 	public void start() {
-		// TODO: For Debug
-		// if (!GraphicalSubsystem.getWindowManager().isShellEnabled())
-		// GraphicalSubsystem.getWindowManager().toggleShell();
-		background = new BackgroundWindow();
-		GraphicalSubsystem.getWindowManager().addWindow(0, background);
-		int ww = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
-		int wh = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
-		int x = ww / 2 - 512;
-		int y = wh / 2 - 300;
-		GraphicalSubsystem.getWindowManager().addWindow(new MainWindow(x, wh - y, 1024, 600));
-
-		// if (!GraphicalSubsystem.getWindowManager().existWindow(profiler)) {
-		// profiler = new Profiler();
-		// GraphicalSubsystem.getWindowManager().addWindow(profiler);
-		// }
-
+		GraphicalSubsystem.getSurfaceManager().addSurface(new MainSurface());
 		super.start();
 	}
 
 	@Override
 	public void end() {
-		background.closeWindow();
 		super.end();
 	}
 

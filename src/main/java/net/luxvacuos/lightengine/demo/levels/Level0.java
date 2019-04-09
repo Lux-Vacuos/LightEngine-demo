@@ -14,7 +14,7 @@ import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.network.LocalNetworkHandler;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.opengl.ParticleDomain;
+import net.luxvacuos.lightengine.client.world.ParticleDomain;
 import net.luxvacuos.lightengine.demo.Global;
 import net.luxvacuos.lightengine.demo.ui.LoadWindow;
 import net.luxvacuos.lightengine.demo.ui.PauseWindow;
